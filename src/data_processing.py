@@ -29,8 +29,13 @@ def load_and_preprocess_data(
     with open(filepath, "r") as file:
         lines: List[str] = file.read().splitlines()
 
-    # TODO
-    bigrams: List[Tuple[str, str]] = None
+    bigrams: List[Tuple[str, str]] = []
+    for line in lines:
+        name_parts = line.split()[:-2]
+        name = " ".join(name_parts)
+        name = start_token + name.lower() + end_token
+        for i in range(len(name)-1):
+            bigrams.append((name[i],name[i+1]))
 
     return bigrams
 
@@ -48,8 +53,11 @@ def char_to_index(alphabet: str, start_token: str, end_token: str) -> Dict[str, 
         Dict[str, int]: A dictionary mapping each character, including start and end tokens, to an index.
     """
     # Create a dictionary with start token at the beginning and end token at the end
-    # TODO
-    char_to_idx: Dict[str, int] = None
+    char_to_idx: Dict[str, int] = {}
+    char_to_idx[start_token] = 0
+    for i in range(len(alphabet)):
+        char_to_idx[alphabet[i]] = i+1
+    char_to_idx[end_token] = len(alphabet)+1
 
     return char_to_idx
 
@@ -65,8 +73,11 @@ def index_to_char(char_to_index: Dict[str, int]) -> Dict[int, str]:
         Dict[int, str]: A dictionary mapping each index back to its corresponding character.
     """
     # Reverse the char_to_index mapping
-    # TODO
-    idx_to_char: Dict[int, str] = None
+    idx_to_char: Dict[int, str] = {}
+    counter = 0
+    for char in char_to_index:
+        idx_to_char[counter] = char
+        counter += 1
 
     return idx_to_char
 
@@ -92,11 +103,14 @@ def count_bigrams(
     """
 
     # Initialize a 2D tensor for counting bigrams
-    # TODO
-    bigram_counts: torch.Tensor = None
+    bigram_counts: torch.Tensor = torch.zeros((len(char_to_idx),len(char_to_idx)),dtype=torch.int)
 
     # Iterate over each bigram and update the count in the tensor
-    # TODO
+    for first_char, second_char in bigrams:
+        if first_char in char_to_idx and second_char in char_to_idx:
+            i = char_to_idx[first_char]
+            j = char_to_idx[second_char]
+            bigram_counts[i,j] += 1
 
     return bigram_counts
 
